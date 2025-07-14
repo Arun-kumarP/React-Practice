@@ -1,24 +1,34 @@
-import logo from './logo.svg';
-import './App.css';
+// ROUTER INSTALLATION COMMENT:  npm install react-router-dom
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import NavigationButtons from './Pages/Navigationbuttons';
+import './styles/app.css'; 
 
-function App() {
+// Import all your route components
+import EmployeeDetails from './Pages/EmployeeDetails';
+import Counter from './Pages/Counter';
+
+
+const App = () => {
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <Router>
+        <div className="app-container">
+          <h1>My Learning App</h1>
+          <button className="btn btn-secondary">Back</button>
+        </div>
+        <Routes>
+          <Route path="/" element={<NavigationButtons />} />
+          <Route path="/employeedetails" element={<EmployeeDetails />} />
+          <Route path="/counter" element={<Counter />} />
+          {/* Optional: Redirect or 404 handler */}
+          {/* <Route path="*" element={<div>Page Not Found</div>} /> */}
+        </Routes>
+      </Router>
     </div>
+
+    
   );
 }
 
