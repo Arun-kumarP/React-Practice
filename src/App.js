@@ -1,13 +1,14 @@
 // ROUTER INSTALLATION COMMENT:  npm install react-router-dom
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import NavigationButtons from "./pages/Navigationbuttons";
+import NavigationButtons from "./Pages/Navigationbuttons";
 import "./styles/app.css";
 
 // Import all your route components
-import EmployeeDetails from "./pages/EmployeeDetails";
-import Counter from "./pages/Counter";
-import CustomHook from "./pages/CustomHook";
+import EmployeeDetails from "./Pages/EmployeeDetails";
+import Counter from "./Pages/Counter";
+import CustomHook from "./Pages/CustomHook";
+import LiveTest from "./Pages/LiveTest";
 
 const App = () => {
   return (
@@ -22,6 +23,7 @@ const App = () => {
           <Route path="/employeedetails" element={<EmployeeDetails />} />
           <Route path="/counter" element={<Counter />} />
           <Route path="/customhook" element={<CustomHook />} />
+          <Route path="/livetest" element={<LiveTest />} />
           {/* Optional: Redirect or 404 handler */}
           {/* <Route path="*" element={<div>Page Not Found</div>} /> */}
         </Routes>

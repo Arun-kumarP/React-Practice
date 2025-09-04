@@ -1,72 +1,30 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchEmployees, addEmployee, editEmployee, deleteEmployee } from '../Redux/EmployeeSlice';
 import "../styles/app.css";
+// import axios from "axios";
+// import _ from 'lodash/';
 import Form from "../components/Form";
 import DropDown from "../components/DropDown";
 
 const EmployeeDetails = () => {
-  const [employeeDetails, setEmployeeDetails] = useState([]);
+  const dispatch = useDispatch();
+  const employeeDetails = useSelector(state => state.employees.list);
+  const status = useSelector(state => state.employees.status);
   const [searchField, setSearchField] = useState("");
   const [searchText, setSearchText] = useState("");
   const [displayForm, setDisplayForm] = useState(false);
 
-  const firstNames = [
-    "John",
-    "Jane",
-    "Michael",
-    "Emily",
-    "David",
-    "Sara",
-    "Chris",
-    "Emma",
-    "Daniel",
-    "Olivia",
-  ];
-  const lastNames = [
-    "Smith",
-    "Johnson",
-    "Williams",
-    "Brown",
-    "Jones",
-    "Garcia",
-    "Miller",
-    "Davis",
-    "Rodriguez",
-    "Martinez",
-  ];
-  const locations = [
-    "New York",
-    "London",
-    "Tokyo",
-    "Paris",
-    "Berlin",
-    "Sydney",
-    "Toronto",
-    "Dubai",
-    "Rome",
-    "Chicago",
-  ];
   const filterOptions = [
-    { item: "empname", value: "EMP_Name" },
-    { item: "location", value: "Location" },
-    { item: "empid", value: "EMP_ID" },
+    { item: "empName", value: "EMP_Name" },
+    { item: "empLocation", value: "empLocation" },
+    { item: "empId", value: "EMP_ID" },
   ];
-
   useEffect(() => {
-    const getRandomItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
-    const generateEmployees = () => {
-      const data = [];
-      for (let i = 1; i <= 50; i++) {
-        const empname = `${getRandomItem(firstNames)} ${getRandomItem(
-          lastNames
-        )}`;
-        const location = getRandomItem(locations);
-        data.push({ empid: i, empname, location, editable: false });
-      }
-      return data;
-    };
-    const data = generateEmployees();
-    setEmployeeDetails(data);
-  }, []);
+    if (status === 'idle') {
+      dispatch(fetchEmployees());
+    }
+  }, [status, dispatch]);
 
   const filteredData = () => {
     if (!searchField || !searchText) return employeeDetails;
@@ -82,47 +40,32 @@ const EmployeeDetails = () => {
     setSearchField(value);
     setSearchText("");
   };
-
   const editData = (empId) => {
-    const updated = employeeDetails.map((emp) =>
-      emp.empid === empId ? { ...emp, editable: true } : emp
-    );
-    setEmployeeDetails(updated);
+    dispatch(editEmployee({ empId, editable: true }));
   };
 
   const saveData = (empId) => {
-    const updated = employeeDetails.map((emp) =>
-      emp.empid === empId ? { ...emp, editable: false } : emp
-    );
-    setEmployeeDetails(updated);
+    dispatch(editEmployee({ empId, editable: false }));
   };
 
   const deleteData = (empId) => {
-    const updated = employeeDetails.filter((emp) => emp.empid !== empId);
-    const reindexed = updated.map((emp, idx) => ({
-      ...emp,
-      empid: idx + 1,
-    }));
-    setEmployeeDetails(reindexed);
+    dispatch(deleteEmployee(empId));
   };
 
   const handleFieldChange = (value, column, empId) => {
-    const updated = employeeDetails.map((emp) =>
-      emp.empid === empId ? { ...emp, [column]: value } : emp
-    );
-    setEmployeeDetails(updated);
+    dispatch(editEmployee({ empId, [column]: value }));
   };
 
   const handleAddEmployee = (data) => {
-    const newEmployee = {
-      empid: employeeDetails.length + 1,
-      empname: data.empName,
-      location: data.location,
+    dispatch(addEmployee({
+      empId: employeeDetails.length + 1,
+      empName: data.empName,
+      empLocation: data.empLocation,
       editable: false,
-    };
-    setEmployeeDetails([...employeeDetails, newEmployee]);
+    }));
     setDisplayForm(false);
   };
+ 
 
   const currentSearchLabel =
     filterOptions.find((opt) => opt.item === searchField)?.value || "";
@@ -163,66 +106,71 @@ const EmployeeDetails = () => {
             <tr>
               <th>EMP_ID</th>
               <th>EMP_Name</th>
-              <th>EMP_Location</th>
+              <th>EMP_empLocation</th>
               <th>Edit / Remove</th>
             </tr>
           </thead>
           <tbody>
-            {filteredData().map((employee) => (
-              <tr key={employee.empid}>
-                <td>{employee.empid}</td>
-                <td>
-                  <input
-                    type="text"
-                    className={employee.editable ? "editable" : "non-editable"}
-                    value={employee.empname}
-                    disabled={!employee.editable}
-                    onChange={(e) =>
-                      handleFieldChange(
-                        e.target.value,
-                        "empname",
-                        employee.empid
-                      )
-                    }
-                  />
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    className={employee.editable ? "editable" : "non-editable"}
-                    value={employee.location}
-                    disabled={!employee.editable}
-                    onChange={(e) =>
-                      handleFieldChange(
-                        e.target.value,
-                        "location",
-                        employee.empid
-                      )
-                    }
-                  />
-                </td>
-                <td>
-                  <button
-                    className="buttons"
-                    onClick={() => editData(employee.empid)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="buttons"
-                    onClick={() => deleteData(employee.empid)}
-                  >
-                    Del
-                  </button>
-                  <button
-                    className="buttons"
-                    onClick={() => saveData(employee.empid)}
-                  >
-                    Save
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {filteredData() &&
+              filteredData().map((employee) => (
+                <tr key={employee.empId}>
+                  <td>{employee.empId}</td>
+                  <td>
+                    <input
+                      type="text"
+                      className={
+                        employee.editable ? "editable" : "non-editable"
+                      }
+                      value={employee.empName}
+                      disabled={!employee.editable}
+                      onChange={(e) =>
+                        handleFieldChange(
+                          e.target.value,
+                          "empName",
+                          employee.empId
+                        )
+                      }
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      className={
+                        employee.editable ? "editable" : "non-editable"
+                      }
+                      value={employee.empLocation}
+                      disabled={!employee.editable}
+                      onChange={(e) =>
+                        handleFieldChange(
+                          e.target.value,
+                          "empLocation",
+                          employee.empId
+                        )
+                      }
+                    />
+                  </td>
+                  <td>
+                    <button
+                      className="buttons"
+                      onClick={() => editData(employee.empId)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="buttons"
+                      onClick={() => deleteData(employee.empId)}
+                    >
+                      Del
+                    </button>
+                    <button
+                      className="buttons"
+                      onClick={() => saveData(employee.empId)}
+                    >
+                      Save
+                    </button>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>

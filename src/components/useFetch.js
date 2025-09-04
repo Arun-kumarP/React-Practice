@@ -7,7 +7,6 @@ const useFetch = (url) => {
 
   useEffect(() => {
     if (!url) return;
-
     const controller = new AbortController();
     const fetchData = async () => {
       setLoading(true);

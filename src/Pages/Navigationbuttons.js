@@ -13,6 +13,7 @@ const NavigationButtons = () => {
     { path: "/countdown", name: "CountDown" },
     { path: "/counter", name: "Counter" },
     { path: "/customhook", name: "CustomHook" },
+    { path: "/livetest", name: "LiveTest" },
   ];
 
   const navigateToScreen = (componentName) => {
